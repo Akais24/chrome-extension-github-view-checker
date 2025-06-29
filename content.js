@@ -28,8 +28,8 @@ function insertButton() {
         btn.onclick = () => console.log('My Button clicked!');
         // Add margin to the right for spacing
         btn.style.marginRight = '8px';
-        // Insert the button immediately before the 'Review changes' button
-        toolbar.insertBefore(btn, reviewBtn);
+        // Insert the button immediately before the 'Review changes' button in its parent
+        reviewBtn.parentNode.insertBefore(btn, reviewBtn);
     }
 }
 
