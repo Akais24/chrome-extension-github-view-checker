@@ -10,15 +10,21 @@ function insertButton() {
     // Find the Copilot button by id
     const copilotDiv = Array.from(toolbar.querySelectorAll('div')).find(div => div.querySelector('#copilot-diff-header-button'));
 
+    // Find the 'Review changes' button
+    const reviewBtn = document.getElementById('overlay-show-review-changes-modal');
+
     // Only insert if both are found and not already inserted
-    if (filesViewedSpan && copilotDiv && !document.getElementById('my-gh-pr-btn')) {
-        const btn = document.createElement('button');
+    if (filesViewedSpan && copilotDiv && reviewBtn && !document.getElementById('my-gh-pr-btn')) {
+        // Clone the 'Review changes' button
+        const btn = reviewBtn.cloneNode(true);
         btn.id = 'my-gh-pr-btn';
-        btn.textContent = 'My Button';
-        btn.style.margin = '0 8px';
-        // Try to copy Copilot button style if possible
-        const copilotBtn = copilotDiv.querySelector('button');
-        if (copilotBtn) btn.className = copilotBtn.className;
+        // Change the label text
+        const label = btn.querySelector('.js-review-changes');
+        if (label) label.textContent = 'My Button';
+        // Remove attributes that may interfere
+        btn.removeAttribute('popovertarget');
+        btn.removeAttribute('aria-haspopup');
+        btn.removeAttribute('data-hotkey');
         btn.onclick = () => console.log('My Button clicked!');
         // Insert the button after filesViewedSpan and before copilotDiv
         toolbar.insertBefore(btn, copilotDiv);
