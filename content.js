@@ -26,8 +26,10 @@ function insertButton() {
         btn.removeAttribute('aria-haspopup');
         btn.removeAttribute('data-hotkey');
         btn.onclick = () => console.log('My Button clicked!');
-        // Insert the button after filesViewedSpan and before copilotDiv
-        toolbar.insertBefore(btn, copilotDiv);
+        // Add margin to the right for spacing
+        btn.style.marginRight = '8px';
+        // Insert the button immediately before the 'Review changes' button
+        toolbar.insertBefore(btn, reviewBtn);
     }
 }
 
