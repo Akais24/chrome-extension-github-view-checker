@@ -28,6 +28,10 @@ function insertButton() {
         btn.onclick = () => console.log('My Button clicked!');
         // Add margin to the right for spacing
         btn.style.marginRight = '8px';
+        // Set custom background color (even darker blue)
+        btn.style.backgroundColor = '#295ea8';
+        btn.style.borderColor = '#295ea8';
+        btn.style.color = '#fff';
         // Insert the button immediately before the 'Review changes' button in its parent
         reviewBtn.parentNode.insertBefore(btn, reviewBtn);
     }
