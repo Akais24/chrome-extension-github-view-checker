@@ -6,6 +6,11 @@ const regexList = [
     { label: '/^common/testtransport//', checked: false },
 ];
 
+function isDarkMode() {
+    return document.documentElement.classList.contains('color-mode-dark') ||
+        document.body.classList.contains('color-mode-dark');
+}
+
 function createModal() {
     if (document.getElementById('my-gh-pr-modal-overlay')) return;
 
@@ -17,27 +22,39 @@ function createModal() {
     overlay.style.left = '0';
     overlay.style.width = '100vw';
     overlay.style.height = '100vh';
-    overlay.style.background = 'rgba(27, 31, 35, 0.5)';
+    overlay.style.background = isDarkMode() ? 'rgba(22, 27, 34, 0.6)' : 'rgba(27, 31, 35, 0.5)';
     overlay.style.zIndex = '9998';
 
     // Modal
     const modal = document.createElement('div');
     modal.id = 'my-gh-pr-modal';
-    modal.style.position = 'fixed';
-    modal.style.top = '50%';
-    modal.style.left = '50%';
-    modal.style.transform = 'translate(-50%, -50%)';
-    modal.style.background = '#fff';
-    modal.style.border = '1px solid #d0d7de';
-    modal.style.borderRadius = '12px';
-    modal.style.boxShadow = '0 8px 24px rgba(149, 157, 165, 0.2)';
-    modal.style.padding = '0';
+    modal.style.position = 'absolute';
     modal.style.zIndex = '9999';
     modal.style.minWidth = '360px';
     modal.style.fontFamily = `-apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji'`;
     modal.style.display = 'flex';
     modal.style.flexDirection = 'column';
     modal.style.maxWidth = '90vw';
+    modal.style.borderRadius = '12px';
+    modal.style.boxShadow = '0 8px 24px rgba(149, 157, 165, 0.2)';
+    modal.style.padding = '0';
+    modal.style.border = isDarkMode() ? '1px solid #30363d' : '1px solid #d0d7de';
+    modal.style.background = isDarkMode() ? '#22272e' : '#fff';
+    modal.style.color = isDarkMode() ? '#c9d1d9' : '#24292f';
+
+    // Position below the button
+    const btn = document.getElementById('my-gh-pr-btn');
+    if (btn) {
+        const rect = btn.getBoundingClientRect();
+        modal.style.left = rect.left + 'px';
+        modal.style.top = (rect.bottom + window.scrollY + 8) + 'px'; // 8px gap
+    } else {
+        // fallback to center if button not found
+        modal.style.position = 'fixed';
+        modal.style.left = '50%';
+        modal.style.top = '50%';
+        modal.style.transform = 'translate(-50%, -50%)';
+    }
 
     // Header
     const header = document.createElement('div');
@@ -45,7 +62,7 @@ function createModal() {
     header.style.alignItems = 'center';
     header.style.justifyContent = 'space-between';
     header.style.padding = '16px 24px 12px 24px';
-    header.style.borderBottom = '1px solid #d8dee4';
+    header.style.borderBottom = isDarkMode() ? '1px solid #30363d' : '1px solid #d8dee4';
 
     const title = document.createElement('h3');
     title.textContent = 'Select Regular Expressions';
@@ -62,7 +79,7 @@ function createModal() {
     closeBtn.style.background = 'none';
     closeBtn.style.border = 'none';
     closeBtn.style.cursor = 'pointer';
-    closeBtn.style.color = '#57606a';
+    closeBtn.style.color = isDarkMode() ? '#8b949e' : '#57606a';
     closeBtn.onclick = () => {
         document.body.removeChild(modal);
         document.body.removeChild(overlay);
@@ -79,6 +96,7 @@ function createModal() {
         label.style.alignItems = 'center';
         label.style.marginBottom = '12px';
         label.style.fontSize = '15px';
+        label.style.color = isDarkMode() ? '#c9d1d9' : '#24292f';
         const checkbox = document.createElement('input');
         checkbox.type = 'checkbox';
         checkbox.checked = regex.checked;
@@ -96,12 +114,12 @@ function createModal() {
     footer.style.justifyContent = 'flex-end';
     footer.style.alignItems = 'center';
     footer.style.padding = '16px 24px';
-    footer.style.borderTop = '1px solid #d8dee4';
+    footer.style.borderTop = isDarkMode() ? '1px solid #30363d' : '1px solid #d8dee4';
     footer.style.marginTop = '16px';
 
     const markBtn = document.createElement('button');
     markBtn.textContent = 'Mark as viewed';
-    markBtn.style.background = '#295ea8';
+    markBtn.style.background = isDarkMode() ? '#388bfd' : '#295ea8';
     markBtn.style.color = '#fff';
     markBtn.style.border = 'none';
     markBtn.style.borderRadius = '6px';
