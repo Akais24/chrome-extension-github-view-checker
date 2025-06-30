@@ -7,8 +7,7 @@ const regexList = [
 ];
 
 function isDarkMode() {
-    return document.documentElement.classList.contains('color-mode-dark') ||
-        document.body.classList.contains('color-mode-dark');
+    return window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
 }
 
 function createModal() {
@@ -42,11 +41,17 @@ function createModal() {
     modal.style.background = isDarkMode() ? '#22272e' : '#fff';
     modal.style.color = isDarkMode() ? '#c9d1d9' : '#24292f';
 
-    // Position below the button
+    // Position modal so its right edge aligns with the button's right edge
     const btn = document.getElementById('my-gh-pr-btn');
     if (btn) {
         const rect = btn.getBoundingClientRect();
-        modal.style.left = rect.left + 'px';
+        // Temporarily add modal to body to measure its width
+        modal.style.visibility = 'hidden';
+        document.body.appendChild(modal);
+        const modalWidth = modal.offsetWidth || 360;
+        document.body.removeChild(modal);
+        modal.style.visibility = '';
+        modal.style.left = (rect.right - modalWidth) + 'px';
         modal.style.top = (rect.bottom + window.scrollY + 8) + 'px'; // 8px gap
     } else {
         // fallback to center if button not found
