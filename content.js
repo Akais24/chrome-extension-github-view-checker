@@ -1,13 +1,26 @@
 // List of example regular expressions
 const regexList = [
-    { label: '/^capnp\/.*\\.capnp\\.go$/', checked: false },
-    { label: '/^capnp\/.*\\.capnp\\.map\\.go$/', checked: false },
-    { label: '/^capnp\/.*\\.handler\\.go$/', checked: false },
-    { label: '/^common\/testtransport\//', checked: false },
+    { label: '/^capnp/.*.capnp.go$/', checked: false },
+    { label: '/^capnp/.*.capnp.map.go$/', checked: false },
+    { label: '/^capnp/.*.handler.go$/', checked: false },
+    { label: '/^common/testtransport//', checked: false },
 ];
 
 function createModal() {
-    if (document.getElementById('my-gh-pr-modal')) return;
+    if (document.getElementById('my-gh-pr-modal-overlay')) return;
+
+    // Overlay
+    const overlay = document.createElement('div');
+    overlay.id = 'my-gh-pr-modal-overlay';
+    overlay.style.position = 'fixed';
+    overlay.style.top = '0';
+    overlay.style.left = '0';
+    overlay.style.width = '100vw';
+    overlay.style.height = '100vh';
+    overlay.style.background = 'rgba(27, 31, 35, 0.5)';
+    overlay.style.zIndex = '9998';
+
+    // Modal
     const modal = document.createElement('div');
     modal.id = 'my-gh-pr-modal';
     modal.style.position = 'fixed';
@@ -16,63 +29,104 @@ function createModal() {
     modal.style.transform = 'translate(-50%, -50%)';
     modal.style.background = '#fff';
     modal.style.border = '1px solid #d0d7de';
-    modal.style.borderRadius = '8px';
-    modal.style.boxShadow = '0 4px 32px rgba(0,0,0,0.15)';
-    modal.style.padding = '24px 20px 16px 20px';
+    modal.style.borderRadius = '12px';
+    modal.style.boxShadow = '0 8px 24px rgba(149, 157, 165, 0.2)';
+    modal.style.padding = '0';
     modal.style.zIndex = '9999';
-    modal.style.minWidth = '320px';
+    modal.style.minWidth = '360px';
+    modal.style.fontFamily = `-apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji'`;
+    modal.style.display = 'flex';
+    modal.style.flexDirection = 'column';
+    modal.style.maxWidth = '90vw';
 
-    // Modal content
+    // Header
+    const header = document.createElement('div');
+    header.style.display = 'flex';
+    header.style.alignItems = 'center';
+    header.style.justifyContent = 'space-between';
+    header.style.padding = '16px 24px 12px 24px';
+    header.style.borderBottom = '1px solid #d8dee4';
+
     const title = document.createElement('h3');
     title.textContent = 'Select Regular Expressions';
-    title.style.marginTop = '0';
-    modal.appendChild(title);
+    title.style.margin = '0';
+    title.style.fontSize = '18px';
+    title.style.fontWeight = '600';
+    title.style.lineHeight = '1.25';
+    header.appendChild(title);
 
-    // List of regexes with checkboxes
+    const closeBtn = document.createElement('button');
+    closeBtn.innerHTML = '&times;';
+    closeBtn.setAttribute('aria-label', 'Close');
+    closeBtn.style.fontSize = '24px';
+    closeBtn.style.background = 'none';
+    closeBtn.style.border = 'none';
+    closeBtn.style.cursor = 'pointer';
+    closeBtn.style.color = '#57606a';
+    closeBtn.onclick = () => {
+        document.body.removeChild(modal);
+        document.body.removeChild(overlay);
+    };
+    header.appendChild(closeBtn);
+    modal.appendChild(header);
+
+    // Content
+    const content = document.createElement('div');
+    content.style.padding = '20px 24px 0 24px';
     regexList.forEach((regex, idx) => {
         const label = document.createElement('label');
         label.style.display = 'flex';
         label.style.alignItems = 'center';
-        label.style.marginBottom = '8px';
+        label.style.marginBottom = '12px';
+        label.style.fontSize = '15px';
         const checkbox = document.createElement('input');
         checkbox.type = 'checkbox';
         checkbox.checked = regex.checked;
-        checkbox.style.marginRight = '8px';
+        checkbox.style.marginRight = '10px';
         checkbox.onchange = (e) => { regexList[idx].checked = e.target.checked; };
         label.appendChild(checkbox);
         label.appendChild(document.createTextNode(regex.label));
-        modal.appendChild(label);
+        content.appendChild(label);
     });
+    modal.appendChild(content);
 
-    // 'Mark as viewed' button
+    // Footer
+    const footer = document.createElement('div');
+    footer.style.display = 'flex';
+    footer.style.justifyContent = 'flex-end';
+    footer.style.alignItems = 'center';
+    footer.style.padding = '16px 24px';
+    footer.style.borderTop = '1px solid #d8dee4';
+    footer.style.marginTop = '16px';
+
     const markBtn = document.createElement('button');
     markBtn.textContent = 'Mark as viewed';
     markBtn.style.background = '#295ea8';
     markBtn.style.color = '#fff';
     markBtn.style.border = 'none';
     markBtn.style.borderRadius = '6px';
-    markBtn.style.padding = '8px 16px';
-    markBtn.style.marginTop = '12px';
+    markBtn.style.padding = '8px 20px';
+    markBtn.style.fontSize = '15px';
+    markBtn.style.fontWeight = '600';
     markBtn.style.cursor = 'pointer';
     markBtn.onclick = () => {
         // Placeholder for future logic
         alert('Marked as viewed for selected regexes!');
         document.body.removeChild(modal);
+        document.body.removeChild(overlay);
     };
-    modal.appendChild(markBtn);
+    footer.appendChild(markBtn);
+    modal.appendChild(footer);
 
-    // Close modal on outside click
-    modal.addEventListener('click', e => e.stopPropagation());
-    setTimeout(() => {
-        document.body.addEventListener('click', function handler() {
-            if (document.getElementById('my-gh-pr-modal')) {
-                document.body.removeChild(modal);
-            }
-            document.body.removeEventListener('click', handler);
-        });
-    }, 0);
-
+    // Add to DOM
+    document.body.appendChild(overlay);
     document.body.appendChild(modal);
+
+    // Close modal on overlay click
+    overlay.onclick = () => {
+        if (document.getElementById('my-gh-pr-modal')) document.body.removeChild(modal);
+        document.body.removeChild(overlay);
+    };
 }
 
 // Wait for the DOM to be ready and for the toolbar to be present
