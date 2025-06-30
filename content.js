@@ -282,7 +282,7 @@ function insertButton() {
         btn.id = 'my-gh-pr-btn';
         // Change the label text
         const label = btn.querySelector('.js-review-changes');
-        if (label) label.textContent = 'My Button';
+        if (label) label.textContent = 'View marker';
         // Remove attributes that may interfere
         btn.removeAttribute('popovertarget');
         btn.removeAttribute('aria-haspopup');
