@@ -10,8 +10,45 @@ function isDarkMode() {
     return window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
 }
 
+function getPRFilePaths() {
+    // GitHub PR file list: file paths are in elements with 'data-tagsearch-path' or in the file tree
+    // We'll try to get all file paths from the file list sidebar
+    const fileLinks = document.querySelectorAll('[data-tagsearch-path], .js-tree-browser-panel [title]');
+    const paths = new Set();
+    fileLinks.forEach(link => {
+        let path = link.getAttribute('data-tagsearch-path') || link.getAttribute('title');
+        if (path) paths.add(path);
+    });
+    // Fallback: try to get from file headers in the diff view
+    if (paths.size === 0) {
+        document.querySelectorAll('.file-info a, .file-header .Link--primary').forEach(a => {
+            if (a.textContent) paths.add(a.textContent.trim());
+        });
+    }
+    return Array.from(paths);
+}
+
+function getRegexMatchCounts(paths) {
+    return regexList.map(r => {
+        let pattern = r.label;
+        // Remove leading/trailing slashes for new RegExp
+        let regexBody = pattern.replace(/^\/(.*)\/$/, '$1');
+        let regex;
+        try {
+            regex = new RegExp(regexBody);
+        } catch {
+            return 0;
+        }
+        return paths.filter(p => regex.test(p)).length;
+    });
+}
+
 function createModal() {
     if (document.getElementById('my-gh-pr-modal-overlay')) return;
+
+    // Get file paths and match counts
+    const filePaths = getPRFilePaths();
+    const matchCounts = getRegexMatchCounts(filePaths);
 
     // Overlay
     const overlay = document.createElement('div');
@@ -108,7 +145,11 @@ function createModal() {
         checkbox.style.marginRight = '10px';
         checkbox.onchange = (e) => { regexList[idx].checked = e.target.checked; };
         label.appendChild(checkbox);
-        label.appendChild(document.createTextNode(regex.label));
+        // Add regex label and match count
+        const regexText = document.createElement('span');
+        regexText.textContent = `${regex.label} (${matchCounts[idx]})`;
+        regexText.style.flex = '1';
+        label.appendChild(regexText);
         content.appendChild(label);
     });
     modal.appendChild(content);
