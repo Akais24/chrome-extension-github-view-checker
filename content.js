@@ -174,8 +174,32 @@ function createModal() {
     markBtn.style.fontWeight = '600';
     markBtn.style.cursor = 'pointer';
     markBtn.onclick = () => {
-        // Placeholder for future logic
-        alert('Marked as viewed for selected regexes!');
+        // Mark files as viewed for checked regexes
+        const checkedRegexes = regexList
+            .map((r, i) => ({ regex: r.label, checked: regexList[i].checked }))
+            .filter(r => r.checked)
+            .map(r => {
+                // Remove leading/trailing slashes for new RegExp
+                let regexBody = r.regex.replace(/^\/(.*)\/$/, '$1');
+                try {
+                    return new RegExp(regexBody);
+                } catch {
+                    return null;
+                }
+            })
+            .filter(Boolean);
+        document.querySelectorAll('div.file-header[data-path]').forEach(header => {
+            const filePath = header.getAttribute('data-path');
+            if (
+                filePath &&
+                checkedRegexes.some(regex => regex.test(filePath))
+            ) {
+                const checkbox = header.querySelector('input.js-reviewed-checkbox[type="checkbox"]');
+                if (checkbox && !checkbox.checked) {
+                    checkbox.click();
+                }
+            }
+        });
         document.body.removeChild(modal);
         document.body.removeChild(overlay);
     };
