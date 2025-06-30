@@ -163,6 +163,49 @@ function createModal() {
     footer.style.borderTop = isDarkMode() ? '1px solid #30363d' : '1px solid #d8dee4';
     footer.style.marginTop = '16px';
 
+    // Unmark as viewed button
+    const unmarkBtn = document.createElement('button');
+    unmarkBtn.textContent = 'Unmark as viewed';
+    unmarkBtn.style.background = isDarkMode() ? '#444c56' : '#eaecef';
+    unmarkBtn.style.color = isDarkMode() ? '#c9d1d9' : '#24292f';
+    unmarkBtn.style.border = 'none';
+    unmarkBtn.style.borderRadius = '6px';
+    unmarkBtn.style.padding = '8px 20px';
+    unmarkBtn.style.fontSize = '15px';
+    unmarkBtn.style.fontWeight = '600';
+    unmarkBtn.style.cursor = 'pointer';
+    unmarkBtn.style.marginRight = '8px';
+    unmarkBtn.onclick = () => {
+        // Unmark files as viewed for checked regexes
+        const checkedRegexes = regexList
+            .map((r, i) => ({ regex: r.label, checked: regexList[i].checked }))
+            .filter(r => r.checked)
+            .map(r => {
+                let regexBody = r.regex.replace(/^\/(.*)\/$/, '$1');
+                try {
+                    return new RegExp(regexBody);
+                } catch {
+                    return null;
+                }
+            })
+            .filter(Boolean);
+        document.querySelectorAll('div.file-header[data-path]').forEach(header => {
+            const filePath = header.getAttribute('data-path');
+            if (
+                filePath &&
+                checkedRegexes.some(regex => regex.test(filePath))
+            ) {
+                const checkbox = header.querySelector('input.js-reviewed-checkbox[type="checkbox"]');
+                if (checkbox && checkbox.checked) {
+                    checkbox.click();
+                }
+            }
+        });
+        document.body.removeChild(modal);
+        document.body.removeChild(overlay);
+    };
+    footer.appendChild(unmarkBtn);
+
     const markBtn = document.createElement('button');
     markBtn.textContent = 'Mark as viewed';
     markBtn.style.background = isDarkMode() ? '#388bfd' : '#295ea8';
