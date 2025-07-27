@@ -275,26 +275,40 @@ function insertButton() {
 
     // Insert button with minimal requirements - only need toolbar and review button
     if (toolbar && reviewBtn) {
-        // Clone the 'Review changes' button
-        const btn = reviewBtn.cloneNode(true);
+        // Create a new button element instead of cloning
+        const btn = document.createElement('button');
         btn.id = 'my-gh-pr-btn';
-        // Change the label text
-        const label = btn.querySelector('.js-review-changes');
-        if (label) label.textContent = 'View marker';
-        // Remove attributes that may interfere
-        btn.removeAttribute('popovertarget');
-        btn.removeAttribute('aria-haspopup');
-        btn.removeAttribute('data-hotkey');
-        btn.onclick = (e) => {
-            e.stopPropagation();
-            createModal();
-        };
-        // Add margin to the right for spacing
+        btn.textContent = 'View marker';
+        btn.type = 'button';
+        
+        // Copy only the styling from the review button
+        const computedStyle = window.getComputedStyle(reviewBtn);
+        const stylesToCopy = [
+            'padding', 'margin', 'border', 'borderRadius', 'fontSize', 'fontFamily', 
+            'fontWeight', 'lineHeight', 'textAlign', 'cursor', 'display', 
+            'alignItems', 'justifyContent', 'minHeight', 'boxSizing'
+        ];
+        
+        stylesToCopy.forEach(property => {
+            btn.style[property] = computedStyle[property];
+        });
+        
+        // Copy CSS classes for consistent styling
+        btn.className = reviewBtn.className;
+        
+        // Set custom styling
         btn.style.marginRight = '8px';
-        // Set custom background color (even darker blue)
         btn.style.backgroundColor = '#295ea8';
         btn.style.borderColor = '#295ea8';
         btn.style.color = '#fff';
+        
+        // Add clean click handler
+        btn.addEventListener('click', (e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            createModal();
+        });
+        
         // Insert the button immediately before the 'Review changes' button in its parent
         reviewBtn.parentNode.insertBefore(btn, reviewBtn);
     }
