@@ -16,13 +16,6 @@ function getStorageKey() {
     return `${STORAGE_KEY_PREFIX}-${repo}`;
 }
 
-// Default patterns (will be used if no stored patterns exist)
-const defaultPatterns = [
-    { label: '/^capnp/.*.capnp.go$/', checked: false, id: generateId() },
-    { label: '/^capnp/.*.capnp.map.go$/', checked: false, id: generateId() },
-    { label: '/^capnp/.*.handler.go$/', checked: false, id: generateId() },
-    { label: '/^common/testtransport//', checked: false, id: generateId() },
-];
 
 function generateId() {
     return Date.now().toString(36) + Math.random().toString(36).substr(2);
@@ -43,7 +36,7 @@ function getRegexPatterns() {
     } catch (e) {
         console.error('Error loading regex patterns:', e);
     }
-    return [...defaultPatterns];
+    return []; // Return empty array if no patterns stored
 }
 
 function saveRegexPatterns(patterns) {
@@ -259,7 +252,18 @@ function createModal() {
     
     // Pattern list
     const patternList = document.createElement('div');
-    regexPatterns.forEach((regex, idx) => {
+    
+    if (regexPatterns.length === 0) {
+        // Show empty state message
+        const emptyMessage = document.createElement('div');
+        emptyMessage.className = 'gh-pr-empty-state';
+        emptyMessage.innerHTML = `
+            <div>No regex patterns yet</div>
+            <div class="gh-pr-empty-state-subtitle">Click "+ Add New Pattern" to get started</div>
+        `;
+        patternList.appendChild(emptyMessage);
+    } else {
+        regexPatterns.forEach((regex, idx) => {
         const patternItem = document.createElement('div');
         patternItem.className = 'gh-pr-regex-label gh-pr-pattern-item';
         
@@ -292,8 +296,9 @@ function createModal() {
         };
         patternItem.appendChild(removeButton);
         
-        patternList.appendChild(patternItem);
-    });
+            patternList.appendChild(patternItem);
+        });
+    }
     
     content.appendChild(patternList);
     modal.appendChild(content);

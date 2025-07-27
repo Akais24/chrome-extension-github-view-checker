@@ -239,3 +239,21 @@
     background-color: rgba(209, 36, 47, 0.1);
     border-radius: 3px;
 }
+
+.gh-pr-empty-state {
+    text-align: center;
+    padding: 20px;
+    color: #656d76;
+    font-style: italic;
+}
+
+@media (prefers-color-scheme: dark) {
+    .gh-pr-empty-state {
+        color: #8b949e;
+    }
+}
+
+.gh-pr-empty-state-subtitle {
+    font-size: 14px;
+    margin-top: 8px;
+}
