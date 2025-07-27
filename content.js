@@ -1,10 +1,71 @@
-// List of example regular expressions
-const regexList = [
-    { label: '/^capnp/.*.capnp.go$/', checked: false },
-    { label: '/^capnp/.*.capnp.map.go$/', checked: false },
-    { label: '/^capnp/.*.handler.go$/', checked: false },
-    { label: '/^common/testtransport//', checked: false },
+// Dynamic regex management
+const STORAGE_KEY = 'gh-pr-regex-patterns';
+
+// Default patterns (will be used if no stored patterns exist)
+const defaultPatterns = [
+    { label: '/^capnp/.*.capnp.go$/', checked: false, id: generateId() },
+    { label: '/^capnp/.*.capnp.map.go$/', checked: false, id: generateId() },
+    { label: '/^capnp/.*.handler.go$/', checked: false, id: generateId() },
+    { label: '/^common/testtransport//', checked: false, id: generateId() },
 ];
+
+function generateId() {
+    return Date.now().toString(36) + Math.random().toString(36).substr(2);
+}
+
+function getRegexPatterns() {
+    try {
+        const stored = localStorage.getItem(STORAGE_KEY);
+        if (stored) {
+            const patterns = JSON.parse(stored);
+            // Ensure each pattern has an ID
+            return patterns.map(p => ({
+                ...p,
+                id: p.id || generateId()
+            }));
+        }
+    } catch (e) {
+        console.error('Error loading regex patterns:', e);
+    }
+    return [...defaultPatterns];
+}
+
+function saveRegexPatterns(patterns) {
+    try {
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(patterns));
+    } catch (e) {
+        console.error('Error saving regex patterns:', e);
+    }
+}
+
+function addRegexPattern(label) {
+    const patterns = getRegexPatterns();
+    const newPattern = {
+        label: label,
+        checked: false,
+        id: generateId()
+    };
+    patterns.push(newPattern);
+    saveRegexPatterns(patterns);
+    return newPattern;
+}
+
+function removeRegexPattern(id) {
+    const patterns = getRegexPatterns();
+    const filteredPatterns = patterns.filter(p => p.id !== id);
+    saveRegexPatterns(filteredPatterns);
+    return filteredPatterns;
+}
+
+function updateRegexPattern(id, updates) {
+    const patterns = getRegexPatterns();
+    const index = patterns.findIndex(p => p.id === id);
+    if (index !== -1) {
+        patterns[index] = { ...patterns[index], ...updates };
+        saveRegexPatterns(patterns);
+    }
+    return patterns;
+}
 
 function isDarkMode() {
     return window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
@@ -29,8 +90,8 @@ function getPRFilePaths() {
     return Array.from(paths);
 }
 
-function getRegexMatchCounts(paths) {
-    return regexList.map(r => {
+function getRegexMatchCounts(paths, patterns) {
+    return patterns.map(r => {
         let pattern = r.label;
         // Remove leading/trailing slashes for new RegExp
         let regexBody = pattern.replace(/^\/(.*)\/$/, '$1');
@@ -47,9 +108,10 @@ function getRegexMatchCounts(paths) {
 function createModal() {
     if (document.getElementById('my-gh-pr-modal-overlay')) return;
 
-    // Get file paths and match counts
+    // Get file paths and dynamic regex patterns
     const filePaths = getPRFilePaths();
-    const matchCounts = getRegexMatchCounts(filePaths);
+    const regexPatterns = getRegexPatterns();
+    const matchCounts = getRegexMatchCounts(filePaths, regexPatterns);
 
     // Overlay
     const overlay = document.createElement('div');
@@ -104,22 +166,94 @@ function createModal() {
     // Content
     const content = document.createElement('div');
     content.className = 'gh-pr-modal-content';
-    regexList.forEach((regex, idx) => {
-        const label = document.createElement('label');
-        label.className = 'gh-pr-regex-label';
+    
+    // Add new pattern form
+    const addForm = document.createElement('div');
+    addForm.style.marginBottom = '16px';
+    addForm.style.padding = '12px';
+    addForm.style.border = '1px dashed #d1d9e0';
+    addForm.style.borderRadius = '6px';
+    
+    const addInput = document.createElement('input');
+    addInput.type = 'text';
+    addInput.placeholder = 'Enter regex pattern (e.g., /^src/.*.test.js$/)';
+    addInput.style.width = '100%';
+    addInput.style.padding = '6px 8px';
+    addInput.style.border = '1px solid #d1d9e0';
+    addInput.style.borderRadius = '4px';
+    addInput.style.marginBottom = '8px';
+    addInput.addEventListener('keypress', (e) => {
+        if (e.key === 'Enter') {
+            addButton.click();
+        }
+    });
+    
+    const addButton = document.createElement('button');
+    addButton.textContent = 'Add Pattern';
+    addButton.className = 'gh-pr-btn-secondary';
+    addButton.style.width = '100%';
+    addButton.onclick = () => {
+        const pattern = addInput.value.trim();
+        if (pattern) {
+            addRegexPattern(pattern);
+            addInput.value = '';
+            // Refresh modal
+            document.body.removeChild(modal);
+            document.body.removeChild(overlay);
+            createModal();
+        }
+    };
+    
+    addForm.appendChild(addInput);
+    addForm.appendChild(addButton);
+    content.appendChild(addForm);
+    
+    // Pattern list
+    const patternList = document.createElement('div');
+    regexPatterns.forEach((regex, idx) => {
+        const patternItem = document.createElement('div');
+        patternItem.className = 'gh-pr-regex-label';
+        patternItem.style.position = 'relative';
+        
         const checkbox = document.createElement('input');
         checkbox.type = 'checkbox';
         checkbox.checked = regex.checked;
         checkbox.className = 'gh-pr-regex-checkbox';
-        checkbox.onchange = (e) => { regexList[idx].checked = e.target.checked; };
-        label.appendChild(checkbox);
+        checkbox.onchange = (e) => { 
+            updateRegexPattern(regex.id, { checked: e.target.checked });
+        };
+        patternItem.appendChild(checkbox);
+        
         // Add regex label and match count
         const regexText = document.createElement('span');
         regexText.textContent = `${regex.label} (${matchCounts[idx]})`;
         regexText.style.flex = '1';
-        label.appendChild(regexText);
-        content.appendChild(label);
+        patternItem.appendChild(regexText);
+        
+        // Remove button
+        const removeButton = document.createElement('button');
+        removeButton.textContent = '×';
+        removeButton.style.background = 'none';
+        removeButton.style.border = 'none';
+        removeButton.style.color = '#d1242f';
+        removeButton.style.cursor = 'pointer';
+        removeButton.style.fontSize = '16px';
+        removeButton.style.marginLeft = '8px';
+        removeButton.style.padding = '0 4px';
+        removeButton.title = 'Remove pattern';
+        removeButton.onclick = () => {
+            removeRegexPattern(regex.id);
+            // Refresh modal
+            document.body.removeChild(modal);
+            document.body.removeChild(overlay);
+            createModal();
+        };
+        patternItem.appendChild(removeButton);
+        
+        patternList.appendChild(patternItem);
     });
+    
+    content.appendChild(patternList);
     modal.appendChild(content);
 
     // Footer
@@ -134,11 +268,10 @@ function createModal() {
     unmarkBtn.style.marginRight = '8px';
     unmarkBtn.onclick = () => {
         // Unmark files as viewed for checked regexes
-        const checkedRegexes = regexList
-            .map((r, i) => ({ regex: r.label, checked: regexList[i].checked }))
+        const checkedRegexes = regexPatterns
             .filter(r => r.checked)
             .map(r => {
-                let regexBody = r.regex.replace(/^\/(.*)\/$/, '$1');
+                let regexBody = r.label.replace(/^\/(.*)\/$/, '$1');
                 try {
                     return new RegExp(regexBody);
                 } catch {
@@ -168,12 +301,11 @@ function createModal() {
     markBtn.className = 'gh-pr-btn-primary gh-pr-btn-blue';
     markBtn.onclick = () => {
         // Mark files as viewed for checked regexes
-        const checkedRegexes = regexList
-            .map((r, i) => ({ regex: r.label, checked: regexList[i].checked }))
+        const checkedRegexes = regexPatterns
             .filter(r => r.checked)
             .map(r => {
                 // Remove leading/trailing slashes for new RegExp
-                let regexBody = r.regex.replace(/^\/(.*)\/$/, '$1');
+                let regexBody = r.label.replace(/^\/(.*)\/$/, '$1');
                 try {
                     return new RegExp(regexBody);
                 } catch {
