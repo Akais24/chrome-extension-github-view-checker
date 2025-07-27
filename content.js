@@ -167,12 +167,20 @@ function createModal() {
     const content = document.createElement('div');
     content.className = 'gh-pr-modal-content';
     
-    // Add new pattern form
+    // Add pattern toggle button
+    const toggleButton = document.createElement('button');
+    toggleButton.textContent = '+ Add New Pattern';
+    toggleButton.className = 'gh-pr-btn-secondary';
+    toggleButton.style.width = '100%';
+    toggleButton.style.marginBottom = '16px';
+    
+    // Add new pattern form (initially hidden)
     const addForm = document.createElement('div');
     addForm.style.marginBottom = '16px';
     addForm.style.padding = '12px';
     addForm.style.border = '1px dashed #d1d9e0';
     addForm.style.borderRadius = '6px';
+    addForm.style.display = 'none'; // Initially hidden
     
     const addInput = document.createElement('input');
     addInput.type = 'text';
@@ -188,10 +196,14 @@ function createModal() {
         }
     });
     
+    const formButtons = document.createElement('div');
+    formButtons.style.display = 'flex';
+    formButtons.style.gap = '8px';
+    
     const addButton = document.createElement('button');
     addButton.textContent = 'Add Pattern';
-    addButton.className = 'gh-pr-btn-secondary';
-    addButton.style.width = '100%';
+    addButton.className = 'gh-pr-btn-primary';
+    addButton.style.flex = '1';
     addButton.onclick = () => {
         const pattern = addInput.value.trim();
         if (pattern) {
@@ -204,8 +216,29 @@ function createModal() {
         }
     };
     
+    const cancelButton = document.createElement('button');
+    cancelButton.textContent = 'Cancel';
+    cancelButton.className = 'gh-pr-btn-secondary';
+    cancelButton.style.flex = '1';
+    cancelButton.onclick = () => {
+        addForm.style.display = 'none';
+        toggleButton.style.display = 'block';
+        addInput.value = '';
+    };
+    
+    // Toggle functionality
+    toggleButton.onclick = () => {
+        addForm.style.display = 'block';
+        toggleButton.style.display = 'none';
+        addInput.focus(); // Focus on input when opened
+    };
+    
+    formButtons.appendChild(addButton);
+    formButtons.appendChild(cancelButton);
     addForm.appendChild(addInput);
-    addForm.appendChild(addButton);
+    addForm.appendChild(formButtons);
+    
+    content.appendChild(toggleButton);
     content.appendChild(addForm);
     
     // Pattern list
