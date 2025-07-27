@@ -1,5 +1,20 @@
 // Dynamic regex management
-const STORAGE_KEY = 'gh-pr-regex-patterns';
+const STORAGE_KEY_PREFIX = 'gh-pr-regex-patterns';
+
+function getCurrentRepository() {
+    // Extract owner/repo from GitHub URL
+    // URL format: https://github.com/owner/repo/pull/123/files
+    const match = window.location.pathname.match(/^\/([^\/]+)\/([^\/]+)\//);
+    if (match) {
+        return `${match[1]}/${match[2]}`;
+    }
+    return 'default'; // Fallback
+}
+
+function getStorageKey() {
+    const repo = getCurrentRepository();
+    return `${STORAGE_KEY_PREFIX}-${repo}`;
+}
 
 // Default patterns (will be used if no stored patterns exist)
 const defaultPatterns = [
@@ -15,7 +30,8 @@ function generateId() {
 
 function getRegexPatterns() {
     try {
-        const stored = localStorage.getItem(STORAGE_KEY);
+        const storageKey = getStorageKey();
+        const stored = localStorage.getItem(storageKey);
         if (stored) {
             const patterns = JSON.parse(stored);
             // Ensure each pattern has an ID
@@ -32,7 +48,8 @@ function getRegexPatterns() {
 
 function saveRegexPatterns(patterns) {
     try {
-        localStorage.setItem(STORAGE_KEY, JSON.stringify(patterns));
+        const storageKey = getStorageKey();
+        localStorage.setItem(storageKey, JSON.stringify(patterns));
     } catch (e) {
         console.error('Error saving regex patterns:', e);
     }
@@ -145,12 +162,16 @@ function createModal() {
 
     // Header
     const header = document.createElement('div');
-    header.className = 'gh-pr-modal-header';
+    header.className = 'gh-pr-modal-header gh-pr-modal-header-column';
+
+    // Title row with close button
+    const titleRow = document.createElement('div');
+    titleRow.className = 'gh-pr-modal-title-row';
 
     const title = document.createElement('h3');
     title.textContent = 'Select Regular Expressions';
     title.className = 'gh-pr-modal-title';
-    header.appendChild(title);
+    titleRow.appendChild(title);
 
     const closeBtn = document.createElement('button');
     closeBtn.innerHTML = '&times;';
@@ -160,7 +181,15 @@ function createModal() {
         document.body.removeChild(modal);
         document.body.removeChild(overlay);
     };
-    header.appendChild(closeBtn);
+    titleRow.appendChild(closeBtn);
+    header.appendChild(titleRow);
+    
+    // Repository info row
+    const repoInfo = document.createElement('div');
+    repoInfo.textContent = `Repository: ${getCurrentRepository()}`;
+    repoInfo.className = 'gh-pr-repo-info';
+    header.appendChild(repoInfo);
+
     modal.appendChild(header);
 
     // Content
@@ -170,26 +199,16 @@ function createModal() {
     // Add pattern toggle button
     const toggleButton = document.createElement('button');
     toggleButton.textContent = '+ Add New Pattern';
-    toggleButton.className = 'gh-pr-btn-secondary';
-    toggleButton.style.width = '100%';
-    toggleButton.style.marginBottom = '16px';
+    toggleButton.className = 'gh-pr-btn-secondary gh-pr-toggle-btn';
     
     // Add new pattern form (initially hidden)
     const addForm = document.createElement('div');
-    addForm.style.marginBottom = '16px';
-    addForm.style.padding = '12px';
-    addForm.style.border = '1px dashed #d1d9e0';
-    addForm.style.borderRadius = '6px';
-    addForm.style.display = 'none'; // Initially hidden
+    addForm.className = 'gh-pr-add-form';
     
     const addInput = document.createElement('input');
     addInput.type = 'text';
     addInput.placeholder = 'Enter regex pattern (e.g., /^src/.*.test.js$/)';
-    addInput.style.width = '100%';
-    addInput.style.padding = '6px 8px';
-    addInput.style.border = '1px solid #d1d9e0';
-    addInput.style.borderRadius = '4px';
-    addInput.style.marginBottom = '8px';
+    addInput.className = 'gh-pr-add-input';
     addInput.addEventListener('keypress', (e) => {
         if (e.key === 'Enter') {
             addButton.click();
@@ -197,13 +216,11 @@ function createModal() {
     });
     
     const formButtons = document.createElement('div');
-    formButtons.style.display = 'flex';
-    formButtons.style.gap = '8px';
+    formButtons.className = 'gh-pr-form-buttons';
     
     const addButton = document.createElement('button');
     addButton.textContent = 'Add Pattern';
     addButton.className = 'gh-pr-btn-primary';
-    addButton.style.flex = '1';
     addButton.onclick = () => {
         const pattern = addInput.value.trim();
         if (pattern) {
@@ -219,7 +236,6 @@ function createModal() {
     const cancelButton = document.createElement('button');
     cancelButton.textContent = 'Cancel';
     cancelButton.className = 'gh-pr-btn-secondary';
-    cancelButton.style.flex = '1';
     cancelButton.onclick = () => {
         addForm.style.display = 'none';
         toggleButton.style.display = 'block';
@@ -245,8 +261,7 @@ function createModal() {
     const patternList = document.createElement('div');
     regexPatterns.forEach((regex, idx) => {
         const patternItem = document.createElement('div');
-        patternItem.className = 'gh-pr-regex-label';
-        patternItem.style.position = 'relative';
+        patternItem.className = 'gh-pr-regex-label gh-pr-pattern-item';
         
         const checkbox = document.createElement('input');
         checkbox.type = 'checkbox';
@@ -266,13 +281,7 @@ function createModal() {
         // Remove button
         const removeButton = document.createElement('button');
         removeButton.textContent = '×';
-        removeButton.style.background = 'none';
-        removeButton.style.border = 'none';
-        removeButton.style.color = '#d1242f';
-        removeButton.style.cursor = 'pointer';
-        removeButton.style.fontSize = '16px';
-        removeButton.style.marginLeft = '8px';
-        removeButton.style.padding = '0 4px';
+        removeButton.className = 'gh-pr-remove-btn';
         removeButton.title = 'Remove pattern';
         removeButton.onclick = () => {
             removeRegexPattern(regex.id);

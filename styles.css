@@ -165,3 +165,77 @@
     border-color: #295ea8 !important;
     color: #fff !important;
 }
+
+.gh-pr-modal-header-column {
+    flex-direction: column !important;
+    align-items: stretch !important;
+}
+
+.gh-pr-modal-title-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.gh-pr-repo-info {
+    font-size: 12px;
+    font-weight: normal;
+    margin-top: 4px;
+    color: #656d76;
+}
+
+@media (prefers-color-scheme: dark) {
+    .gh-pr-repo-info {
+        color: #8b949e;
+    }
+}
+
+.gh-pr-add-form {
+    margin-bottom: 16px;
+    padding: 12px;
+    border: 1px dashed #d1d9e0;
+    border-radius: 6px;
+    display: none;
+}
+
+.gh-pr-add-input {
+    width: 100%;
+    padding: 6px 8px;
+    border: 1px solid #d1d9e0;
+    border-radius: 4px;
+    margin-bottom: 8px;
+}
+
+.gh-pr-form-buttons {
+    display: flex;
+    gap: 8px;
+}
+
+.gh-pr-form-buttons .gh-pr-btn-primary,
+.gh-pr-form-buttons .gh-pr-btn-secondary {
+    flex: 1;
+}
+
+.gh-pr-toggle-btn {
+    width: 100%;
+    margin-bottom: 16px;
+}
+
+.gh-pr-pattern-item {
+    position: relative;
+}
+
+.gh-pr-remove-btn {
+    background: none;
+    border: none;
+    color: #d1242f;
+    cursor: pointer;
+    font-size: 16px;
+    margin-left: 8px;
+    padding: 0 4px;
+}
+
+.gh-pr-remove-btn:hover {
+    background-color: rgba(209, 36, 47, 0.1);
+    border-radius: 3px;
+}
