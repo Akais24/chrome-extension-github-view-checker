@@ -262,21 +262,19 @@ function createModal() {
 
 // Wait for the DOM to be ready and for the toolbar to be present
 function insertButton() {
+    // Check if button already exists
+    if (document.getElementById('my-gh-pr-btn')) return;
+
     // Find the main toolbar container
     const toolbar = document.querySelector('.pr-review-tools');
     if (!toolbar) return;
 
-    // Find the 'files viewed' span
-    const filesViewedSpan = Array.from(toolbar.querySelectorAll('span')).find(el => /files? viewed/i.test(el.textContent));
-
-    // Find the Copilot button by id
-    const copilotDiv = Array.from(toolbar.querySelectorAll('div')).find(div => div.querySelector('#copilot-diff-header-button'));
-
-    // Find the 'Review changes' button
+    // Find the 'Review changes' button (this is the most reliable anchor)
     const reviewBtn = document.getElementById('overlay-show-review-changes-modal');
+    if (!reviewBtn) return;
 
-    // Only insert if both are found and not already inserted
-    if (filesViewedSpan && copilotDiv && reviewBtn && !document.getElementById('my-gh-pr-btn')) {
+    // Insert button with minimal requirements - only need toolbar and review button
+    if (toolbar && reviewBtn) {
         // Clone the 'Review changes' button
         const btn = reviewBtn.cloneNode(true);
         btn.id = 'my-gh-pr-btn';
@@ -302,9 +300,50 @@ function insertButton() {
     }
 }
 
+// Improved loading mechanism for GitHub's dynamic content
+function waitForElements() {
+    // Try multiple times with increasing delays
+    const maxAttempts = 10;
+    let attempts = 0;
+    
+    function tryInsert() {
+        attempts++;
+        insertButton();
+        
+        // If button was successfully inserted or max attempts reached, stop
+        if (document.getElementById('my-gh-pr-btn') || attempts >= maxAttempts) {
+            return;
+        }
+        
+        // Try again with exponential backoff
+        setTimeout(tryInsert, Math.min(100 * Math.pow(1.5, attempts), 2000));
+    }
+    
+    // Start immediately
+    tryInsert();
+}
+
 // Observe DOM changes in case toolbar loads late
-const observer = new MutationObserver(insertButton);
+const observer = new MutationObserver(() => {
+    if (!document.getElementById('my-gh-pr-btn')) {
+        insertButton();
+    }
+});
 observer.observe(document.body, { childList: true, subtree: true });
 
-// Initial try
+// Multiple initialization strategies
+// 1. Immediate try
 insertButton();
+
+// 2. DOM ready
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', insertButton);
+} else {
+    insertButton();
+}
+
+// 3. Window loaded
+window.addEventListener('load', insertButton);
+
+// 4. Delayed attempts for SPA loading
+waitForElements();
