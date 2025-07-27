@@ -10,6 +10,7 @@ function isDarkMode() {
     return window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
 }
 
+
 function getPRFilePaths() {
     // GitHub PR file list: file paths are in elements with 'data-tagsearch-path' or in the file tree
     // We'll try to get all file paths from the file list sidebar
@@ -53,30 +54,12 @@ function createModal() {
     // Overlay
     const overlay = document.createElement('div');
     overlay.id = 'my-gh-pr-modal-overlay';
-    overlay.style.position = 'fixed';
-    overlay.style.top = '0';
-    overlay.style.left = '0';
-    overlay.style.width = '100vw';
-    overlay.style.height = '100vh';
-    overlay.style.background = isDarkMode() ? 'rgba(22, 27, 34, 0.6)' : 'rgba(27, 31, 35, 0.5)';
-    overlay.style.zIndex = '9998';
+    overlay.className = 'gh-pr-modal-overlay';
 
     // Modal
     const modal = document.createElement('div');
     modal.id = 'my-gh-pr-modal';
-    modal.style.position = 'absolute';
-    modal.style.zIndex = '9999';
-    modal.style.minWidth = '360px';
-    modal.style.fontFamily = `-apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji'`;
-    modal.style.display = 'flex';
-    modal.style.flexDirection = 'column';
-    modal.style.maxWidth = '90vw';
-    modal.style.borderRadius = '12px';
-    modal.style.boxShadow = '0 8px 24px rgba(149, 157, 165, 0.2)';
-    modal.style.padding = '0';
-    modal.style.border = isDarkMode() ? '1px solid #30363d' : '1px solid #d0d7de';
-    modal.style.background = isDarkMode() ? '#22272e' : '#fff';
-    modal.style.color = isDarkMode() ? '#c9d1d9' : '#24292f';
+    modal.className = 'gh-pr-modal';
 
     // Position modal so its right edge aligns with the button's right edge
     const btn = document.getElementById('my-gh-pr-btn');
@@ -100,28 +83,17 @@ function createModal() {
 
     // Header
     const header = document.createElement('div');
-    header.style.display = 'flex';
-    header.style.alignItems = 'center';
-    header.style.justifyContent = 'space-between';
-    header.style.padding = '16px 24px 12px 24px';
-    header.style.borderBottom = isDarkMode() ? '1px solid #30363d' : '1px solid #d8dee4';
+    header.className = 'gh-pr-modal-header';
 
     const title = document.createElement('h3');
     title.textContent = 'Select Regular Expressions';
-    title.style.margin = '0';
-    title.style.fontSize = '18px';
-    title.style.fontWeight = '600';
-    title.style.lineHeight = '1.25';
+    title.className = 'gh-pr-modal-title';
     header.appendChild(title);
 
     const closeBtn = document.createElement('button');
     closeBtn.innerHTML = '&times;';
     closeBtn.setAttribute('aria-label', 'Close');
-    closeBtn.style.fontSize = '24px';
-    closeBtn.style.background = 'none';
-    closeBtn.style.border = 'none';
-    closeBtn.style.cursor = 'pointer';
-    closeBtn.style.color = isDarkMode() ? '#8b949e' : '#57606a';
+    closeBtn.className = 'gh-pr-modal-close';
     closeBtn.onclick = () => {
         document.body.removeChild(modal);
         document.body.removeChild(overlay);
@@ -131,18 +103,14 @@ function createModal() {
 
     // Content
     const content = document.createElement('div');
-    content.style.padding = '20px 24px 0 24px';
+    content.className = 'gh-pr-modal-content';
     regexList.forEach((regex, idx) => {
         const label = document.createElement('label');
-        label.style.display = 'flex';
-        label.style.alignItems = 'center';
-        label.style.marginBottom = '12px';
-        label.style.fontSize = '15px';
-        label.style.color = isDarkMode() ? '#c9d1d9' : '#24292f';
+        label.className = 'gh-pr-regex-label';
         const checkbox = document.createElement('input');
         checkbox.type = 'checkbox';
         checkbox.checked = regex.checked;
-        checkbox.style.marginRight = '10px';
+        checkbox.className = 'gh-pr-regex-checkbox';
         checkbox.onchange = (e) => { regexList[idx].checked = e.target.checked; };
         label.appendChild(checkbox);
         // Add regex label and match count
@@ -156,24 +124,13 @@ function createModal() {
 
     // Footer
     const footer = document.createElement('div');
-    footer.style.display = 'flex';
-    footer.style.justifyContent = 'flex-end';
-    footer.style.alignItems = 'center';
-    footer.style.padding = '16px 24px';
-    footer.style.borderTop = isDarkMode() ? '1px solid #30363d' : '1px solid #d8dee4';
-    footer.style.marginTop = '16px';
+    footer.className = 'gh-pr-modal-footer';
+    footer.style.justifyContent = 'flex-end'; // Override to align right
 
     // Unmark as viewed button
     const unmarkBtn = document.createElement('button');
     unmarkBtn.textContent = 'Unmark as viewed';
-    unmarkBtn.style.background = isDarkMode() ? '#444c56' : '#eaecef';
-    unmarkBtn.style.color = isDarkMode() ? '#c9d1d9' : '#24292f';
-    unmarkBtn.style.border = 'none';
-    unmarkBtn.style.borderRadius = '6px';
-    unmarkBtn.style.padding = '8px 20px';
-    unmarkBtn.style.fontSize = '15px';
-    unmarkBtn.style.fontWeight = '600';
-    unmarkBtn.style.cursor = 'pointer';
+    unmarkBtn.className = 'gh-pr-btn-secondary';
     unmarkBtn.style.marginRight = '8px';
     unmarkBtn.onclick = () => {
         // Unmark files as viewed for checked regexes
@@ -208,14 +165,7 @@ function createModal() {
 
     const markBtn = document.createElement('button');
     markBtn.textContent = 'Mark as viewed';
-    markBtn.style.background = isDarkMode() ? '#388bfd' : '#295ea8';
-    markBtn.style.color = '#fff';
-    markBtn.style.border = 'none';
-    markBtn.style.borderRadius = '6px';
-    markBtn.style.padding = '8px 20px';
-    markBtn.style.fontSize = '15px';
-    markBtn.style.fontWeight = '600';
-    markBtn.style.cursor = 'pointer';
+    markBtn.className = 'gh-pr-btn-primary gh-pr-btn-blue';
     markBtn.onclick = () => {
         // Mark files as viewed for checked regexes
         const checkedRegexes = regexList
@@ -293,14 +243,11 @@ function insertButton() {
             btn.style[property] = computedStyle[property];
         });
         
-        // Copy CSS classes for consistent styling
-        btn.className = reviewBtn.className;
+        // Copy CSS classes for consistent styling and add custom class
+        btn.className = reviewBtn.className + ' gh-pr-custom-btn';
         
-        // Set custom styling
+        // Ensure margin is applied (override any conflicting styles)
         btn.style.marginRight = '8px';
-        btn.style.backgroundColor = '#295ea8';
-        btn.style.borderColor = '#295ea8';
-        btn.style.color = '#fff';
         
         // Add clean click handler
         btn.addEventListener('click', (e) => {

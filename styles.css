@@ -1,0 +1,167 @@
+.gh-pr-modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background: rgba(27, 31, 35, 0.5);
+    z-index: 9998;
+}
+
+@media (prefers-color-scheme: dark) {
+    .gh-pr-modal-overlay {
+        background: rgba(22, 27, 34, 0.6);
+    }
+}
+
+.gh-pr-modal {
+    position: absolute;
+    z-index: 9999;
+    min-width: 360px;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji';
+    display: flex;
+    flex-direction: column;
+    max-width: 90vw;
+    border-radius: 12px;
+    box-shadow: 0 8px 24px rgba(149, 157, 165, 0.2);
+    padding: 0;
+    border: 1px solid #d0d7de;
+    background: #fff;
+    color: #24292f;
+}
+
+@media (prefers-color-scheme: dark) {
+    .gh-pr-modal {
+        border: 1px solid #30363d;
+        background: #22272e;
+        color: #c9d1d9;
+    }
+}
+
+.gh-pr-modal-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 16px 24px 12px 24px;
+    border-bottom: 1px solid #d8dee4;
+}
+
+@media (prefers-color-scheme: dark) {
+    .gh-pr-modal-header {
+        border-bottom: 1px solid #30363d;
+    }
+}
+
+.gh-pr-modal-title {
+    margin: 0;
+    font-size: 18px;
+    font-weight: 600;
+    line-height: 1.25;
+}
+
+.gh-pr-modal-close {
+    font-size: 24px;
+    background: none;
+    border: none;
+    cursor: pointer;
+    color: #57606a;
+}
+
+@media (prefers-color-scheme: dark) {
+    .gh-pr-modal-close {
+        color: #8b949e;
+    }
+}
+
+.gh-pr-modal-content {
+    padding: 20px 24px 0 24px;
+}
+
+.gh-pr-regex-label {
+    display: flex;
+    align-items: center;
+    margin-bottom: 12px;
+    font-size: 15px;
+    color: #24292f;
+}
+
+@media (prefers-color-scheme: dark) {
+    .gh-pr-regex-label {
+        color: #c9d1d9;
+    }
+}
+
+.gh-pr-regex-checkbox {
+    margin-right: 10px;
+}
+
+.gh-pr-modal-footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 16px 24px 20px 24px;
+    border-top: 1px solid #d8dee4;
+    margin-top: 20px;
+}
+
+@media (prefers-color-scheme: dark) {
+    .gh-pr-modal-footer {
+        border-top: 1px solid #30363d;
+    }
+}
+
+.gh-pr-btn-primary {
+    padding: 6px 16px;
+    border: 1px solid #1f883d;
+    border-radius: 6px;
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    text-align: center;
+    text-decoration: none;
+    white-space: nowrap;
+    background-color: #1f883d;
+    color: #fff;
+}
+
+@media (prefers-color-scheme: dark) {
+    .gh-pr-btn-primary {
+        background-color: #238636;
+        border-color: #238636;
+    }
+}
+
+.gh-pr-btn-secondary {
+    padding: 6px 16px;
+    border: 1px solid #d1d9e0;
+    border-radius: 6px;
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    text-align: center;
+    text-decoration: none;
+    white-space: nowrap;
+    background-color: #f6f8fa;
+    color: #24292f;
+}
+
+@media (prefers-color-scheme: dark) {
+    .gh-pr-btn-secondary {
+        background-color: #21262d;
+        border-color: #30363d;
+        color: #c9d1d9;
+    }
+}
+
+.gh-pr-custom-btn {
+    margin-right: 8px !important;
+    background-color: #295ea8 !important;
+    border-color: #295ea8 !important;
+    color: #fff !important;
+}
+
+.gh-pr-btn-blue {
+    background-color: #295ea8 !important;
+    border-color: #295ea8 !important;
+    color: #fff !important;
+}
